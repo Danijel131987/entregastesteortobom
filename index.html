@@ -476,6 +476,7 @@
             await salvarDadosOnline(); atualizarPainelDados();
         }
         // SALVAMENTO DE ENTREGA COM PROCESSAMENTO CONVERSOR DE PDF
+               // PARTE 10 CORRIGIDA COM TRAVA DE SEGURANÇA PARA ARQUIVOS GRANDES
         async function salvarEntrega(event) {
             event.preventDefault();
             const data = document.getElementById('dataEntrega').value;
@@ -497,6 +498,14 @@
             }
 
             const arquivo = inputArquivo.files[0];
+            
+            // TRAVA CRÍTICA: Se o PDF for maior que 1.5MB, avisa o operador para não estourar a nuvem
+            const tamanhoMaximo = 1.5 * 1024 * 1024; // 1.5 Megabytes
+            if (arquivo.size > tamanhoMaximo) {
+                alert("O arquivo PDF anexado é muito pesado! Por segurança da nuvem, anexe um documento de até 1.5MB (você pode usar sites como 'IlovePDF' para comprimir se necessário).");
+                return;
+            }
+
             const leitorDeArquivo = new FileReader();
 
             leitorDeArquivo.onload = async function(e) {
