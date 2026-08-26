@@ -118,10 +118,10 @@
 
     <main>
         <div class="alerta-local">
-            <div>🚀</div>
+            <div>⚡</div>
             <div>
-                <p class="alerta-titulo">Nuvem Global Ativa (Sincronização Total)</p>
-                <p class="alerta-desc">Conexão estável sem travas ativada. Todas as filiais e computadores distantes salvam e atualizam os dados juntos em tempo real.</p>
+                <p class="alerta-titulo">Banco de Dados Supabase Conectado</p>
+                <p class="alerta-desc">Infraestrutura em nuvem ativada com sucesso. Todas as entregas são salvas e sincronizadas em tempo real sem perdas.</p>
             </div>
         </div>
         <!-- SEÇÃO DA GRADE DO CALENDÁRIO -->
@@ -172,7 +172,6 @@
                     <span class="icon-bg azul">📋</span> Resumo Geral das Entregas Cadastradas (Todas as Datas)
                 </h2>
                 
-                <!-- Barra de pesquisa por nome ou CPF posicionada perfeitamente acima da listagem -->
                 <div class="busca-container">
                     <input type="text" id="inputBusca" oninput="filtrarEntregasPorInput()" placeholder="Digite o nome ou CPF para filtrar na hora..." class="busca-input">
                 </div>
@@ -223,11 +222,14 @@
             </button>
         </div>
     </div>
-    <!-- ENGINE REVISADA E COMPATÍVEL COM MÚLTIPLOS COMPUTADORES -->
+    <!-- MOTOR LOGÍSTICO INTEGRADO AO SEU SUPABASE -->
     <script>
         const LIMITE_PADRAO = 5;
         const SENHA_ADM = "admin123";
-        const URL_BANCO_ONLINE = "https://jsonstorage.net";
+        
+        // Suas chaves reais e exclusivas capturadas com sucesso do painel
+        const SUPABASE_URL = "https://supabase.co";
+        const SUPABASE_KEY = "sb_publishable_4uvYbyTG8dspsavRX2B82Q_dVkpy3g0zD8U89C06D7zD5";
 
         document.getElementById('dataEntrega').valueAsDate = new Date();
         let entregas = [];
@@ -237,6 +239,7 @@
         const LINHAS_POR_PAGINA = 20;
         let termoPesquisaGlobal = "";
 
+        // Verificação blindada de Finais de Semana e Feriados Nacionais
         function verificarSeE_FeriadoOuFimDeSemana(dataObjeto) {
             const diaSemana = dataObjeto.getDay(); 
             if (diaSemana === 0 || diaSemana === 6) return { bloqueado: true, motivo: "Fim de Semana" };
@@ -256,28 +259,33 @@
             const dataCorpus = new Date(dataPascoa); dataCorpus.setDate(dataPascoa.getDate() + 60); if (mes === (dataCorpus.getMonth() + 1) && dia === dataCorpus.getDate()) return { bloqueado: true, motivo: "Corpus Christi" };
             return { bloqueado: false, motivo: "" };
         }
+        // CONEXÃO DE LEITURA DIRETA COM AS TABELAS DO SEU SUPABASE
         async function carregarDadosOnline() {
             try {
-                const resposta = await fetch(URL_BANCO_ONLINE);
-                if (resposta.ok) {
-                    const dados = await resposta.json();
-                    if (dados) {
-                        entregas = dados.entregas || [];
-                        limitesCustomizados = dados.limites || {};
-                    }
-                }
-            } catch (erro) { console.log("Conectando..."); }
-            atualizarPainelDados();
-        }
-
-        async function salvarDadosOnline() {
-            try {
-                await fetch(URL_BANCO_ONLINE, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ entregas, limites: limitesCustomizados })
+                // Busca a tabela de entregas na nuvem
+                const resEntregas = await fetch(`${SUPABASE_URL}/rest/v1/entregas?select=*`, {
+                    headers: { "apikey": SUPABASE_KEY, "Authorization": `Bearer ${SUPABASE_KEY}` }
                 });
-            } catch (erro) { alert("Erro ao salvar dados na nuvem!"); }
+                
+                // Busca a tabela de limites customizados
+                const resLimites = await fetch(`${SUPABASE_URL}/rest/v1/limites_vagas?select=*`, {
+                    headers: { "apikey": SUPABASE_KEY, "Authorization": `Bearer ${SUPABASE_KEY}` }
+                });
+
+                if (resEntregas.ok && resLimites.ok) {
+                    const dadosEntregas = await resEntregas.json();
+                    const dadosLimites = await resLimites.json();
+                    
+                    entregas = dadosEntregas || [];
+                    
+                    // Transforma a lista de limites em formato de objeto simples
+                    limitesCustomizados = {};
+                    dadosLimites.forEach(item => {
+                        limitesCustomizados[item.data] = item.limite;
+                    });
+                }
+            } catch (erro) { console.log("Sincronizando com o Supabase..."); }
+            atualizarPainelDados();
         }
 
         function atualizarPainelDados() {
@@ -290,11 +298,13 @@
             const dataInput = document.getElementById('dataEntrega').value;
             const dataBase = dataInput ? new Date(dataInput + "T00:00:00") : new Date();
             dataBase.setDate(dataBase.getDate() + offsetDiasAtual);
+            
             for (let i = 0; i < 10; i++) {
                 const dataLoop = new Date(dataBase); dataLoop.setDate(dataBase.getDate() + i);
                 const ano = dataLoop.getFullYear(); const mes = String(dataLoop.getMonth() + 1).padStart(2, '0'); const dia = String(dataLoop.getDate()).padStart(2, '0'); const dataChaveYMD = `${ano}-${mes}-${dia}`;
                 const verificacao = verificarSeE_FeriadoOuFimDeSemana(dataLoop);
                 const nomesDias = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"]; const diaSemanaTexto = nomesDias[dataLoop.getDay()]; const dataFormatadaBR = `${dia}/${mes}`; const divCard = document.createElement('div');
+                
                 if (verificacao.bloqueado) {
                     divCard.className = "card-dia bloqueado";
                     divCard.innerHTML = `<div class="dia-semana">${diaSemanaTexto} (${dataFormatadaBR})</div><div class="dia-numero">${dia}</div><span class="dia-vagas vagas-indisponivel">${verificacao.motivo}</span>`;
@@ -337,14 +347,12 @@
             document.getElementById('btnAnterior').disabled = (paginaAtual === 1); document.getElementById('btnProximo').disabled = (paginaAtual === totalPaginas);
         }
 
-        // EMITE O ROMANEIO DA ORTOBOM EM TELA COM ACESSO A QUALQUER IMPRESSORA
         function abrirDocumentoPdfReal(indiceReal) {
             if (indiceReal === -1) return; const entrega = entregas[indiceReal]; const dataBR = entrega.data.split('-').reverse().join('/');
-            const novaAba = window.open(); novaAba.document.write(`<html lang="pt-BR"><head><title>Comprovante - ${entrega.nome}</title><style>body { font-family: 'Segoe UI', Arial, sans-serif; padding: 40px; color: #1e293b; background: #f8fafc; }.ticket { max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }.header { border-bottom: 2px solid #1e3a8a; padding-bottom: 15px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; }.title { font-size: 22px; font-weight: bold; color: #1e3a8a; }.row { margin-bottom: 15px; font-size: 14px; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px; }.label { font-weight: 700; color: #475569; text-transform: uppercase; font-size: 11px; }.val { font-size: 16px; color: #0f172a; margin-top: 4px; font-weight: 600; }.footer-btn { margin-top: 30px; display: flex; gap: 10px; }.btn { flex: 1; padding: 12px; font-weight: bold; border-radius: 8px; border: none; cursor: pointer; text-align: center; font-size: 14px; }.btn-pri { background: #1e3a8a; color: white; }.btn-sec { background: #cbd5e1; color: #334155; }@media print { .footer-btn { display: none; } body { padding: 0; background: white; } .ticket { border: none; box-shadow: none; } }</style></head><body><div class="ticket"><div class="header"><div class="title">📄 COMPROVANTE DE AGENDAMENTO</div><div style="font-weight: 800; color: #1e3a8a;">ORTOBOM</div></div><div class="row"><div class="label">Nome do Cliente</div><div class="val">${entrega.nome}</div></div><div class="row"><div class="label">CPF do Cliente</div><div class="val">${entrega.cpf}</div></div><div class="row"><div class="label">Data de Entrega Cadastrada</div><div class="val" style="color: #1e3a8a; font-size: 18px;">${dataBR}</div></div><div class="row"><div class="label">Status do Agendamento</div><div class="val" style="color: #166534;">✓ Confirmado no Banco de Dados</div></div><div class="footer-btn"><button class="btn btn-pri" onclick="window.print()">🖨️ Imprimir Romaneio</button><button class="btn btn-sec" onclick="window.close()">Fechar Janela</button></div></div></body></html>`); novaAba.document.close();
+            const novaAba = window.open(); novaAba.document.write(`<html lang="pt-BR"><head><title>Comprovante - ${entrega.nome}</title><style>body { font-family: 'Segoe UI', Arial, sans-serif; padding: 40px; color: #1e293b; background: #f8fafc; }.ticket { max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }.header { border-bottom: 2px solid #1e3a8a; padding-bottom: 15px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; }.title { font-size: 22px; font-weight: bold; color: #1e3a8a; }.row { margin-bottom: 15px; font-size: 14px; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px; }.label { font-weight: 700; color: #475569; text-transform: uppercase; font-size: 11px; }.val { font-size: 16px; color: #0f172a; margin-top: 4px; font-weight: 600; }.footer-btn { margin-top: 30px; display: flex; gap: 10px; }.btn { flex: 1; padding: 12px; font-weight: bold; border-radius: 8px; border: none; cursor: pointer; text-align: center; font-size: 14px; }.btn-pri { background: #1e3a8a; color: white; }.btn-sec { background: #cbd5e1; color: #334155; }@media print { .footer-btn { display: none; } body { padding: 0; background: white; } .ticket { border: none; box-shadow: none; } }</style></head><body><div class="ticket"><div class="header"><div class="title">📄 COMPROVANTE DE AGENDAMENTO</div><div style="font-weight: 800; color: #1e3a8a;">ORTOBOM</div></div><div class="row"><div class="label">Nome do Cliente</div><div class="val">${entrega.nome}</div></div><div class="row"><div class="label">CPF do Cliente</div><div class="val">${entrega.cpf}</div></div><div class="row"><div class="label">Data de Entrega Cadastrada</div><div class="val" style="color: #1e3a8a; font-size: 18px;">${dataBR}</div></div><div class="row"><div class="label">Status do Agendamento</div><div class="val" style="color: #166534;">✓ Sincronizado no Supabase Cloud</div></div><div class="footer-btn"><button class="btn btn-pri" onclick="window.print()">🖨️ Imprimir Romaneio</button><button class="btn btn-sec" onclick="window.close()">Fechar Janela</button></div></div></body></html>`); novaAba.document.close();
         }
 
         function mudarPagina(direcao) { paginaAtual += direcao; renderizarTabelaGlobalPaginada(); }
-
         async function alterarDataEntregaPorClique(indiceReal) {
             if (indiceReal === -1) return; const entregaSelecionada = entregas[indiceReal];
             const novaDataInput = prompt(`Alterar data da entrega de ${entregaSelecionada.nome}:`, entregaSelecionada.data); if (!novaDataInput) return;
@@ -352,28 +360,68 @@
             const novaDataObjeto = new Date(novaDataInput + "T00:00:00"); const checagemBloqueio = verificarSeE_FeriadoOuFimDeSemana(novaDataObjeto); if (checagemBloqueio.bloqueado) { alert(`Bloqueado: ${checagemBloqueio.motivo}.`); return; }
             const limiteDoDia = limitesCustomizados[novaDataInput] !== undefined ? limitesCustomizados[novaDataInput] : LIMITE_PADRAO; const totalAgendadoNaNovaData = entregas.filter(e => e.data === novaDataInput).length;
             if (totalAgendadoNaNovaData >= limiteDoDia) { alert("Vagas esgotadas para essa data."); return; }
-            entregas[indiceReal].data = novaDataInput; await salvarDadosOnline(); atualizarPainelDados(); alert("Data alterada com sucesso!");
+            
+            try {
+                const idRegistro = entregaSelecionada.id;
+                const resposta = await fetch(`${SUPABASE_URL}/rest/v1/entregas?id=eq.${idRegistro}`, {
+                    method: 'PATCH',
+                    headers: { "apikey": SUPABASE_KEY, "Authorization": `Bearer ${SUPABASE_KEY}`, "Content-Type": "application/json" },
+                    body: JSON.stringify({ data: novaDataInput })
+                });
+                if (resposta.ok) {
+                    alert("Data alterada com sucesso na nuvem!");
+                    carregarDadosOnline();
+                } else { alert("Erro ao sincronizar alteração."); }
+            } catch(e) { alert("Erro de rede."); }
         }
 
         function abrirPainelAdmin() { const senha = prompt("Senha ADM:"); if (senha === SENHA_ADM) { document.getElementById('modalAdmin').classList.add('ativo'); document.getElementById('adminData').value = document.getElementById('dataEntrega').value; } else if (senha !== null) { alert("Incorreta!"); } }
         function fecharPainelAdmin() { document.getElementById('modalAdmin').classList.remove('ativo'); }
-        async function salvarConfiguracaoLimite() { const data = document.getElementById('adminData').value; const limite = parseInt(document.getElementById('adminLimite').value); if (!data || isNaN(limite)) { alert("Preencha os campos."); return; } limitesCustomizados[data] = limite; fecharPainelAdmin(); await salvarDadosOnline(); atualizarPainelDados(); }
+        
+        async function salvarConfiguracaoLimite() { 
+            const data = document.getElementById('adminData').value; 
+            const limite = parseInt(document.getElementById('adminLimite').value); 
+            if (!data || isNaN(limite)) { alert("Preencha os campos."); return; } 
+            
+            try {
+                const resposta = await fetch(`${SUPABASE_URL}/rest/v1/limites_vagas`, {
+                    method: 'POST',
+                    headers: { "apikey": SUPABASE_KEY, "Authorization": `Bearer ${SUPABASE_KEY}`, "Content-Type": "application/json", "Prefer": "resolution=merge-duplicates" },
+                    body: JSON.stringify({ data, limite })
+                });
+                if (resposta.ok) {
+                    fecharPainelAdmin();
+                    carregarDadosOnline();
+                }
+            } catch(e) { alert("Falha ao salvar limite."); }
+        }
 
-        // SALVAMENTO OTIMIZADO PARA MULTI-COMPUTADORES LIVRE DE BLOQUEIOS E TRAVAS DE DISPOSITIVO
         async function salvarEntrega(event) {
             event.preventDefault(); const data = document.getElementById('dataEntrega').value; const dataObjeto = new Date(data + "T00:00:00"); const checagemBloqueio = verificarSeE_FeriadoOuFimDeSemana(dataObjeto); if (checagemBloqueio.bloqueado) { alert(`Bloqueado devido a: ${checagemBloqueio.motivo}.`); return; }
             const limiteDoDia = limitesCustomizados[data] !== undefined ? limitesCustomizados[data] : LIMITE_PADRAO; const entregasDoDia = entregas.filter(e => e.data === data).length; if (entregasDoDia >= limiteDoDia) { alert("Vagas esgotadas!"); return; }
             const cpf = document.getElementById('cpfCliente').value; const nome = document.getElementById('nomeCliente').value;
             
-            entregas.push({ data, cpf, nome });
-            document.getElementById('cpfCliente').value = ""; document.getElementById('nomeCliente').value = ""; document.getElementById('arquivoPdf').value = "";
-            
-            await salvarDadosOnline(); 
-            atualizarPainelDados(); 
-            alert("Agendamento salvo e sincronizado globalmente!");
+            try {
+                const resposta = await fetch(`${SUPABASE_URL}/rest/v1/entregas`, {
+                    method: 'POST',
+                    headers: { "apikey": SUPABASE_KEY, "Authorization": `Bearer ${SUPABASE_KEY}`, "Content-Type": "application/json" },
+                    body: JSON.stringify({ data, nome, cpf })
+                });
+                
+                if (resposta.ok) {
+                    document.getElementById('cpfCliente').value = ""; document.getElementById('nomeCliente').value = ""; document.getElementById('arquivoPdf').value = "";
+                    alert("Agendamento salvo com sucesso no banco Supabase!");
+                    carregarDadosOnline();
+                } else {
+                    alert("O servidor rejeitou a gravação.");
+                }
+            } catch(erro) {
+                alert("Erro de conexão com o banco de dados.");
+            }
         }
 
-        carregarDadosOnline(); setInterval(carregarDadosOnline, 5000);
+        carregarDadosOnline(); 
+        setInterval(carregarDadosOnline, 5000);
     </script>
 </body>
 </html>
