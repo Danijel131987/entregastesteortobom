@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EntregaFácil Ortobom - Painel Corporativo</title>
+    
+    <!-- CDN DO SUPABASE -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <style>
         /* ESTILOS INTERNOS BLINDADOS */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
@@ -15,8 +19,13 @@
         
         .logo-box { display: flex; align-items: center; gap: 12px; }
         .badge { background-color: #1e3a8a; color: white; font-weight: 800; padding: 6px 12px; border-radius: 8px; font-size: 14px; letter-spacing: 0.05em; box-shadow: 0 4px 6px -1px rgba(30,58,138,0.2); border: 1px solid rgba(255,255,255,0.1); }
-        .logo-title { font-size: 20px; font-weight: 900; tracking-tight: -0.025em; color: white; }
+        .logo-title { font-size: 20px; font-weight: 900; color: white; }
         .logo-sub { font-size: 12px; color: #93c5fd; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; }
+        
+        /* Indicador de Conexão */
+        .status-conexao { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; padding: 6px 12px; border-radius: 20px; background-color: rgba(22, 101, 52, 0.2); color: #4ade80; border: 1px solid rgba(74, 222, 128, 0.4); }
+        .status-ponto { width: 8px; height: 8px; background-color: #4ade80; border-radius: 50%; box-shadow: 0 0 8px #4ade80; }
+
         .btn-admin { width: 100%; background-color: #0f172a; color: #e2e8f0; padding: 10px 20px; border-radius: 12px; font-size: 12px; font-weight: 700; text-transform: uppercase; border: 1px solid #1e293b; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
         .btn-admin:hover { background-color: #1e293b; color: white; }
         @media(min-width: 640px) { .btn-admin { width: auto; } }
@@ -24,15 +33,7 @@
         main { max-width: 1200px; margin: 0 auto; padding: 16px; display: flex; flex-direction: column; gap: 32px; }
         @media(min-width: 768px) { main { padding: 32px; } }
         
-        .alerta-local { background-color: #fffbeb; border-left: 4px solid #f59e0b; padding: 16px; border-radius: 0 12px 12px 0; box-shadow: 0 1px 3px rgba(0,0,0,0.05); display: flex; gap: 12px; }
-        .alerta-titulo { font-size: 14px; font-weight: 600; color: #92400e; }
-        .alerta-desc { font-size: 12px; color: #b45309; margin-top: 2px; }
-        
         .topo-calendario { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; gap: 16px; flex-wrap: wrap; }
-        .botoes-seta { display: flex; gap: 8px; }
-        .btn-seta { background-color: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; font-weight: bold; width: 40px; height: 40px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s; font-size: 16px; }
-        .btn-seta:hover { background-color: #e2e8f0; color: #0f172a; border-color: #94a3b8; }
-        .btn-seta:active { transform: scale(0.95); }
         
         .grade-cal { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
         @media(min-width: 480px) { .grade-cal { grid-template-columns: repeat(3, 1fr); } }
@@ -40,63 +41,41 @@
         .card-dia { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 14px; text-align: center; box-shadow: 0 1px 2px rgba(0,0,0,0.02); transition: all 0.2s; cursor: pointer; }
         .card-dia:hover { border-color: #1e3a8a; box-shadow: 0 4px 12px rgba(30,58,138,0.05); transform: translateY(-2px); }
         .card-dia.selecionado { border-color: #1e3a8a; background-color: #eff6ff; box-shadow: 0 0 0 3px rgba(30,58,138,0.15); }
-        .card-dia.bloqueado { background-color: #f1f5f9; border-color: #e2e8f0; cursor: not-allowed; opacity: 0.75; }
-        .card-dia.bloqueado:hover { border-color: #e2e8f0; box-shadow: none; transform: none; }
-        .card-dia.bloqueado .dia-numero { color: #94a3b8; }
         
         .dia-semana { font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; }
         .dia-numero { font-size: 24px; font-weight: 900; color: #0f172a; margin: 4px 0; }
         .dia-vagas { font-size: 11px; font-weight: 700; padding: 4px 8px; border-radius: 9999px; display: inline-block; }
         .vagas-ok { background-color: #f0fdf4; color: #166534; }
         .vagas-esgotado { background-color: #fef2f2; color: #991b1b; }
-        .vagas-indisponivel { background-color: #f1f5f9; color: #64748b; text-transform: uppercase; font-size: 9px; }
         
         .layout-conteudo { display: grid; grid-template-columns: 1fr; gap: 32px; align-items: start; }
         @media(min-width: 1024px) { .layout-conteudo { grid-template-columns: 1fr 2fr; } }
         
         .secao-box { background: white; padding: 24px; border-radius: 16px; border: 1px solid #f1f5f9; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
-        .secao-titulo { font-size: 16px; font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 8px; }
+        .secao-titulo { font-size: 16px; font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 8px; margin-bottom: 20px; }
         .icon-bg { padding: 6px; background-color: #f0fdf4; color: #166534; border-radius: 8px; font-size: 14px; }
         .secao-titulo .icon-bg.azul { background-color: #dbeafe; color: #1e3a8a; }
-        .paginacao-wrapper { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 16px; border-top: 1px solid #f1f5f9; }
-        .btn-pagi { background-color: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 16px; font-size: 13px; font-weight: 600; color: #475569; cursor: pointer; transition: all 0.15s; }
-        .btn-pagi:hover:not(:disabled) { background-color: #f8fafc; color: #0f172a; border-color: #cbd5e1; }
-        .btn-pagi:disabled { opacity: 0.5; cursor: not-allowed; }
-        .txt-pagi { font-size: 13px; color: #64748b; font-weight: 500; }
         
-        .link-data-clicavel { color: #1e3a8a; text-decoration: underline; cursor: pointer; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; }
-        .link-data-clicavel:hover { color: #1d4ed8; }
-        
-        .busca-container { margin-bottom: 20px; width: 100%; }
-        .busca-input { width: 100%; border: 1px solid #cbd5e1; border-radius: 12px; padding: 12px 16px 12px 40px; font-size: 14px; outline: none; background: #ffffff url("data:image/svg+xml,%3Csvg xmlns='http://w3.org' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z'/%3E%3C/svg%3E") no-repeat 14px center; background-size: 18px; transition: all 0.15s; }
-        .busca-input:focus { border-color: #1e3a8a; box-shadow: 0 0 0 4px rgba(30,58,138,0.1); }
-
         .form-grupo { margin-bottom: 20px; }
         .form-label { display: block; font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
         .form-input { width: 100%; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px; font-size: 14px; outline: none; background-color: #f8fafc; transition: all 0.15s; }
         .form-input:focus { border-color: #1e3a8a; background-color: white; box-shadow: 0 0 0 4px rgba(30,58,138,0.1); }
-        .form-file { border: 1px dashed #e2e8f0; padding: 8px; border-radius: 12px; background-color: #f8fafc; cursor: pointer; }
-        .btn-salvar { width: 100%; background-color: #1e3a8a; color: white; font-weight: 700; padding: 14px; border-radius: 12px; border: none; cursor: pointer; transition: all 0.15s; font-size: 14px; letter-spacing: 0.025em; box-shadow: 0 4px 6px -1px rgba(30,58,138,0.1); }
+        
+        .busca-container { margin-bottom: 20px; width: 100%; }
+        .busca-input { width: 100%; border: 1px solid #cbd5e1; border-radius: 12px; padding: 12px 16px 12px 40px; font-size: 14px; outline: none; background: #ffffff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z'/%3E%3C/svg%3E") no-repeat 14px center; background-size: 18px; }
+
+        .btn-salvar { width: 100%; background-color: #1e3a8a; color: white; font-weight: 700; padding: 14px; border-radius: 12px; border: none; cursor: pointer; transition: all 0.15s; font-size: 14px; }
         .btn-salvar:hover { background-color: #172554; }
-        .btn-salvar:active { transform: scale(0.99); }
         
-        .tabela-wrapper { overflow-x: auto; margin: 0 -24px; }
+        .tabela-wrapper { overflow-x: auto; margin-top: 15px; }
         table { width: 100%; border-collapse: collapse; min-width: 500px; text-align: left; }
-        th { background-color: #f8fafc; color: #94a3b8; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; padding: 14px 24px; border-bottom: 1px solid #f1f5f9; }
-        td { padding: 14px 24px; border-bottom: 1px solid #f1f5f9; font-size: 14px; font-weight: 500; color: #334155; }
-        .td-data { color: #0f172a; }
-        .td-cpf { font-family: monospace; font-size: 12px; color: #64748b; }
+        th, td { padding: 12px; border-bottom: 1px solid #e2e8f0; font-size: 14px; }
+        th { background-color: #f8fafc; color: #64748b; font-weight: 700; font-size: 12px; text-transform: uppercase; }
         
-        .btn-pdf { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 700; color: #1e3a8a; background-color: #dbeafe; padding: 4px 10px; border-radius: 8px; cursor: pointer; transition: background 0.15s; border: none; }
-        .btn-pdf:hover { background-color: #bfdbfe; }
-        
-        .modal { position: fixed; inset: 0; background-color: rgba(15,23,42,0.6); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 50; padding: 16px; opacity: 0; pointer-events: none; transition: all 0.2s; }
-        .modal.ativo { opacity: 1; pointer-events: auto; }
-        .modal-corpo { background: white; border-radius: 16px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); max-width: 448px; width: 100%; padding: 24px; border: 1px solid #f1f5f9; }
-        .modal-topo { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; padding-bottom: 12px; margin-bottom: 20px; }
-        .modal-fechar { color: #94a3b8; background: #f8fafc; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 50%; border: none; font-size: 20px; cursor: pointer; font-weight: bold; }
-        .modal-fechar:hover { color: #475569; }
-        .btn-atualizar-vagas { width: 100%; background-color: #0f172a; color: white; font-weight: 700; padding: 12px; border-radius: 12px; border: none; cursor: pointer; font-size: 14px; margin-top: 8px; }
+        /* Modal de Configuração de Vagas Admin */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000; }
+        .modal-conteudo { background: white; padding: 24px; border-radius: 16px; width: 90%; max-width: 400px; position: relative; }
+        .fechar-modal { position: absolute; top: 16px; right: 16px; font-size: 20px; cursor: pointer; font-weight: bold; color: #64748b; }
     </style>
 </head>
 <body>
@@ -104,324 +83,332 @@
     <header>
         <div class="header-container">
             <div class="logo-box">
-                <span class="badge">ORTOBOM</span>
+                <div class="badge">ORTOBOM</div>
                 <div>
                     <h1 class="logo-title">EntregaFácil</h1>
                     <p class="logo-sub">Painel de Logística Diária</p>
                 </div>
             </div>
-            <button id="btnAdmin" onclick="abrirPainelAdmin()" class="btn-admin">
-                🔒 Configurar Vagas (ADM)
-            </button>
+            <div style="display: flex; gap: 12px; align-items: center;">
+                <div class="status-conexao">
+                    <div class="status-ponto"></div>
+                    <span>Supabase Conectado</span>
+                </div>
+                <button class="btn-admin" onclick="abrirModalAdmin()">🔒 Configurar Vagas (ADM)</button>
+            </div>
         </div>
     </header>
 
     <main>
-        <div class="alerta-local">
-            <div>⚡</div>
-            <div>
-                <p class="alerta-titulo">Banco de Dados Supabase Conectado</p>
-                <p class="alerta-desc">Infraestrutura em nuvem ativada com sucesso. Todas as entregas são salvas e sincronizadas em tempo real sem perdas.</p>
-            </div>
-        </div>
-        <!-- SEÇÃO DA GRADE DO CALENDÁRIO -->
+        <!-- GRADE DE VAGAS -->
         <section class="secao-box">
             <div class="topo-calendario">
-                <h2 class="secao-titulo">
-                    <span class="icon-bg azul">📅</span> Grade de Vagas Disponíveis (Próximos 10 Dias)
-                </h2>
-                <div class="botoes-seta">
-                    <button type="button" onclick="alterarOffsetDias(-10)" class="btn-seta" title="Voltar 10 dias">◀</button>
-                    <button type="button" onclick="alterarOffsetDias(10)" class="btn-seta" title="Avançar 10 dias">▶</button>
-                </div>
+                <h2 class="secao-titulo"><span class="icon-bg azul">📅</span> Grade de Vagas Disponíveis (Próximos 10 Dias)</h2>
             </div>
-            <div id="gradeCalendario" class="grade-cal"></div>
+            <div class="grade-cal" id="grade-calendario">
+                <!-- Inserido dinamicamente via JS -->
+            </div>
         </section>
 
         <div class="layout-conteudo">
-            <!-- FORMULÁRIO DE CADASTRO -->
+            <!-- FORMULÁRIO -->
             <section class="secao-box">
-                <h2 class="secao-titulo">
-                    <span class="icon-bg">＋</span> Nova Entrega
-                </h2>
-                <form id="formEntrega" onsubmit="salvarEntrega(event)">
+                <h2 class="secao-titulo"><span class="icon-bg">＋</span> Nova Entrega</h2>
+                <form id="form-entrega" onsubmit="salvarAgendamento(event)">
                     <div class="form-grupo">
                         <label class="form-label">Data de entrega *</label>
-                        <input type="date" id="dataEntrega" required onchange="selecionarDataPeloInput()" class="form-input" style="font-weight: 600;">
+                        <input type="date" id="form-data" class="form-input" required readonly>
                     </div>
                     <div class="form-grupo">
                         <label class="form-label">CPF do Cliente *</label>
-                        <input type="text" id="cpfCliente" required placeholder="000.000.000-00" class="form-input">
+                        <input type="text" id="form-cpf" class="form-input" placeholder="000.000.000-00" required>
                     </div>
                     <div class="form-grupo">
                         <label class="form-label">Nome completo *</label>
-                        <input type="text" id="nomeCliente" required placeholder="Ex: João da Silva" class="form-input">
+                        <input type="text" id="form-nome" class="form-input" placeholder="Nome do Cliente" required>
                     </div>
-                    <div class="form-grupo">
-                        <label class="form-label">Comprovante (PDF) *</label>
-                        <input type="file" id="arquivoPdf" required accept="application/pdf" class="form-input form-file">
-                    </div>
-                    <button type="submit" class="btn-salvar">
-                        💾 Salvar Agendamento
-                    </button>
+                    <button type="submit" class="btn-salvar">💾 Salvar Agendamento</button>
                 </form>
             </section>
-            <!-- TABELA DE RESUMO GERAL DAS ENTREGAS -->
-            <section class="secao-box">
-                <h2 class="secao-titulo" style="margin-bottom: 16px;">
-                    <span class="icon-bg azul">📋</span> Resumo Geral das Entregas Cadastradas (Todas as Datas)
-                </h2>
-                
-                <div class="busca-container">
-                    <input type="text" id="inputBusca" oninput="filtrarEntregasPorInput()" placeholder="Digite o nome ou CPF para filtrar na hora..." class="busca-input">
-                </div>
 
+            <!-- TABELA DE RESUMO -->
+            <section class="secao-box">
+                <h2 class="secao-titulo"><span class="icon-bg azul">📋</span> Resumo Geral das Entregas Cadastradas</h2>
+                <div class="busca-container">
+                    <input type="text" id="busca-tabela" class="busca-input" placeholder="Buscar por CPF ou Nome..." oninput="filtrarTabela()">
+                </div>
                 <div class="tabela-wrapper">
                     <table>
                         <thead>
                             <tr>
-                                <th>Data (Clique p/ Mudar)</th>
+                                <th>Data</th>
                                 <th>Cliente</th>
                                 <th>CPF</th>
-                                <th style="text-align: right;">Documento</th>
                             </tr>
                         </thead>
-                        <tbody id="tabelaEntregas">
-                            <!-- Inserido dinamicamente via JavaScript -->
+                        <tbody id="corpo-tabela">
+                            <!-- Inserido dinamicamente via JS -->
                         </tbody>
                     </table>
-                </div>
-
-                <!-- CONTROLES DA PAGINAÇÃO -->
-                <div class="paginacao-wrapper">
-                    <button type="button" id="btnAnterior" onclick="mudarPagina(-1)" class="btn-pagi">◀ Anteriores</button>
-                    <span id="infoPaginacao" class="txt-pagi">Página 1 de 1</span>
-                    <button type="button" id="btnProximo" onclick="mudarPagina(1)" class="btn-pagi">Próximas ▶</button>
                 </div>
             </section>
         </div>
     </main>
 
-    <!-- POP-UP ADMIN (MODAL) -->
-    <div id="modalAdmin" class="modal">
-        <div class="modal-corpo">
-            <div class="modal-topo">
-                <h3 style="font-size: 16px; font-weight: 700; color: #0f172a;">🛡️ Configuração de Vagas (ADM)</h3>
-                <button onclick="fecharPainelAdmin()" class="modal-fechar">&times;</button>
-            </div>
+    <!-- MODAL CONFIGURAÇÃO ADM -->
+    <div id="modal-admin" class="modal">
+        <div class="modal-conteudo">
+            <span class="fechar-modal" onclick="fecharModalAdmin()">&times;</span>
+            <h3 style="margin-bottom: 20px; font-size: 16px;">🛡 Configuração de Vagas (ADM)</h3>
             <div class="form-grupo">
                 <label class="form-label">Selecionar Data</label>
-                <input type="date" id="adminData" class="form-input">
+                <input type="date" id="admin-data" class="form-input">
             </div>
             <div class="form-grupo">
                 <label class="form-label">Novo Limite de Vagas</label>
-                <input type="number" id="adminLimite" min="0" class="form-input" placeholder="Ex: 5">
+                <input type="number" id="admin-limite" class="form-input" value="10">
             </div>
-            <button onclick="salvarConfiguracaoLimite()" class="btn-atualizar-vagas">
-                Atualizar Limite da Data
-            </button>
+            <button class="btn-salvar" onclick="atualizarLimiteData()">Atualizar Limite da Data</button>
         </div>
     </div>
-                        <!-- MOTOR LOGÍSTICO INTEGRADO AO SEU SUPABASE -->
+
     <script>
-        const LIMITE_PADRAO = 5;
-        const SENHA_ADM = "admin123";
+        // ==========================================
+        // 1. CONFIGURAÇÃO DA CONEXÃO DO SUPABASE
+        // ==========================================
+        const SUPABASE_URL = "https://ocbpnzupqrurjworyabq.supabase.co";
+        const SUPABASE_ANON_KEY = "sb_publishable_4uvYbyTG0dspsavRX2BB2Q_dVkpyXfB"; 
 
-        const SUPABASE_URL = "https://supabase.co";
-        const SUPABASE_KEY = "sb_secret_mGbmsNlBGNqUNBFZ5-QArw_P4xiZMtm";
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        document.getElementById('dataEntrega').valueAsDate = new Date();
+        // VARIÁVEIS DE ESTADO INTERNO
+        let dataSelecionada = "";
+        let listaEntregas = [];
+        let limitesVagasPersonalizados = {}; 
+        const LIMITE_PADRAO = 10; 
 
-        let entregas = [];
-        let limitesCustomizados = {};
-        let offsetDiasAtual = 0;
-        let paginaAtual = 1;
-        const LINHAS_POR_PAGINA = 20;
-        let termoPesquisaGlobal = "";
+        // ==========================================
+        // 2. INICIALIZAÇÃO DA APLICAÇÃO
+        // ==========================================
+        document.addEventListener("DOMContentLoaded", () => {
+            configurarProximosDias();
+            carregarDadosDoSupabase();
+        });
 
-        // Verificação blindada de Finais de Semana e Feriados Nacionais
-        function verificarSeE_FeriadoOuFimDeSemana(dataObjeto) {
-            const diaSemana = dataObjeto.getDay(); 
-            if (diaSemana === 0 || diaSemana === 6) return { bloqueado: true, motivo: "Fim de Semana" };
-            const ano = dataObjeto.getFullYear(); const mes = dataObjeto.getMonth() + 1; const dia = dataObjeto.getDate();
-            if (mes === 1 && dia === 1) return { bloqueado: true, motivo: "Ano Novo" };
-            if (mes === 4 && dia === 21) return { bloqueado: true, motivo: "Tiradentes" };
-            if (mes === 5 && dia === 1) return { bloqueado: true, motivo: "Dia do Trabalho" };
-            if (mes === 9 && dia === 7) return { bloqueado: true, motivo: "Independência" };
-            if (mes === 10 && dia === 12) return { bloqueado: true, motivo: "Nsa. Sra. Aparecida" };
-            if (mes === 11 && dia === 2) return { bloqueado: true, motivo: "Finados" };
-            if (mes === 11 && dia === 15) return { bloqueado: true, motivo: "Procl. da República" };
-            if (mes === 11 && dia === 20) return { bloqueado: true, motivo: "Consciência Negra" };
-            if (mes === 12 && dia === 25) return { bloqueado: true, motivo: "Natal" };
-            const a = ano % 19; const b = Math.floor(ano / 100); const c = ano % 100; const d = Math.floor(b / 4); const e = b % 4; const f = Math.floor((b + 8) / 25); const g = Math.floor((b - f + 1) / 3); const h = (19 * a + b - d - g + 15) % 30; const i = Math.floor(c / 4); const k = c % 4; const l = (32 + 2 * e + 2 * i - h - k) % 7; const m = Math.floor((a + 11 * h + 22 * l) / 451); const mesPascoa = Math.floor((h + l - 7 * m + 114) / 31); const diaPascoa = ((h + l - 7 * m + 114) % 31) + 1; const dataPascoa = new Date(ano, mesPascoa - 1, diaPascoa);
-            const dataCarnaval = new Date(dataPascoa); dataCarnaval.setDate(dataPascoa.getDate() - 47); if (mes === (dataCarnaval.getMonth() + 1) && dia === dataCarnaval.getDate()) return { bloqueado: true, motivo: "Carnaval" };
-            const dataSextaSanta = new Date(dataPascoa); dataSextaSanta.setDate(dataPascoa.getDate() - 2); if (mes === (dataSextaSanta.getMonth() + 1) && dia === dataSextaSanta.getDate()) return { bloqueado: true, motivo: "Sexta Santa" };
-            const dataCorpus = new Date(dataPascoa); dataCorpus.setDate(dataPascoa.getDate() + 60); if (mes === (dataCorpus.getMonth() + 1) && dia === dataCorpus.getDate()) return { bloqueado: true, motivo: "Corpus Christi" };
-            return { bloqueado: false, motivo: "" };
-        }
-        // CONEXÃO DE LEITURA DIRETA COM AS TABELAS DO SEU SUPABASE
-        async function carregarDadosOnline() {
-            try {
-                // Busca a tabela de entregas na nuvem
-                const resEntregas = await fetch(`${SUPABASE_URL}/rest/v1/entregas?select=*`, {
-                    headers: { "apikey": SUPABASE_KEY, "Authorization": `Bearer ${SUPABASE_KEY}` }
-                });
-                
-                // Busca a tabela de limites customizados
-                const resLimites = await fetch(`${SUPABASE_URL}/rest/v1/limites_vagas?select=*`, {
-                    headers: { "apikey": SUPABASE_KEY, "Authorization": `Bearer ${SUPABASE_KEY}` }
-                });
-
-                if (resEntregas.ok && resLimites.ok) {
-                    const dadosEntregas = await resEntregas.json();
-                    const dadosLimites = await resLimites.json();
-                    
-                    entregas = dadosEntregas || [];
-                    
-                    // Transforma a lista de limites em formato de objeto simples
-                    limitesCustomizados = {};
-                    dadosLimites.forEach(item => {
-                        limitesCustomizados[item.data] = item.limite;
-                    });
-                }
-            } catch (erro) { console.log("Sincronizando com o Supabase..."); }
-            atualizarPainelDados();
-        }
-
-        function atualizarPainelDados() {
-            renderizarCalendario10Dias();
-            renderizarTabelaGlobalPaginada();
-        }
-
-        function renderizarCalendario10Dias() {
-            const grade = document.getElementById('gradeCalendario'); grade.innerHTML = "";
-            const dataInput = document.getElementById('dataEntrega').value;
-            const dataBase = dataInput ? new Date(dataInput + "T00:00:00") : new Date();
-            dataBase.setDate(dataBase.getDate() + offsetDiasAtual);
+        // Configura dinamicamente os cards dos próximos 10 dias
+        function configurarProximosDias() {
+            const grade = document.getElementById("grade-calendario");
+            grade.innerHTML = "";
+            const diasSemana = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+            
+            const hoje = new Date();
             
             for (let i = 0; i < 10; i++) {
-                const dataLoop = new Date(dataBase); dataLoop.setDate(dataBase.getDate() + i);
-                const ano = dataLoop.getFullYear(); const mes = String(dataLoop.getMonth() + 1).padStart(2, '0'); const dia = String(dataLoop.getDate()).padStart(2, '0'); const dataChaveYMD = `${ano}-${mes}-${dia}`;
-                const verificacao = verificarSeE_FeriadoOuFimDeSemana(dataLoop);
-                const nomesDias = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"]; const diaSemanaTexto = nomesDias[dataLoop.getDay()]; const dataFormatadaBR = `${dia}/${mes}`; const divCard = document.createElement('div');
+                const dataFutura = new Date(hoje);
+                dataFutura.setDate(hoje.getDate() + i);
                 
-                if (verificacao.bloqueado) {
-                    divCard.className = "card-dia bloqueado";
-                    divCard.innerHTML = `<div class="dia-semana">${diaSemanaTexto} (${dataFormatadaBR})</div><div class="dia-numero">${dia}</div><span class="dia-vagas vagas-indisponivel">${verificacao.motivo}</span>`;
-                } else {
-                    const limiteDoDia = limitesCustomizados[dataChaveYMD] !== undefined ? limitesCustomizados[dataChaveYMD] : LIMITE_PADRAO;
-                    const totalAgendado = entregas.filter(e => e.data === dataChaveYMD).length; const vagasLivres = Math.max(0, limiteDoDia - totalAgendado);
-                    divCard.className = `card-dia ${dataInput === dataChaveYMD ? 'selecionado' : ''}`; divCard.setAttribute('onclick', `selecionarDataPeloCalendario('${dataChaveYMD}')`);
-                    const classeBadgeVagas = vagasLivres === 0 ? "dia-vagas vagas-esgotado" : "dia-vagas vagas-ok"; const textoBadgeVagas = vagasLivres === 0 ? "Esgotado" : `${vagasLivres} vagas`;
-                    divCard.innerHTML = `<div class="dia-semana">${diaSemanaTexto} (${dataFormatadaBR})</div><div class="dia-numero">${dia}</div><span class="${classeBadgeVagas}">${textoBadgeVagas}</span>`;
-                }
-                grade.appendChild(divCard);
-            }
-        }
-
-        function alterarOffsetDias(valor) { offsetDiasAtual += valor; atualizarPainelDados(); }
-        function selecionarDataPeloCalendario(dataYMD) { document.getElementById('dataEntrega').value = dataYMD; offsetDiasAtual = 0; atualizarPainelDados(); }
-        function selecionarDataPeloInput() { offsetDiasAtual = 0; atualizarPainelDados(); }
-        function filtrarEntregasPorInput() { termoPesquisaGlobal = document.getElementById('inputBusca').value.toLowerCase().trim(); paginaAtual = 1; renderizarTabelaGlobalPaginada(); }
-        function renderizarTabelaGlobalPaginada() {
-            const corpoTabela = document.getElementById('tabelaEntregas'); corpoTabela.innerHTML = "";
-            const entregasOrdenadas = [...entregas].sort((a, b) => new Date(b.data) - new Date(a.data));
-            const entregasFiltradas = entregasOrdenadas.filter(e => {
-                const nomeMatch = e.nome ? e.nome.toLowerCase().includes(termoPesquisaGlobal) : false;
-                const cpfMatch = e.cpf ? e.cpf.toLowerCase().includes(termoPesquisaGlobal) : false; return nomeMatch || cpfMatch;
-            });
-            const totalRegistros = entregasFiltradas.length;
-            if (totalRegistros === 0) {
-                corpoTabela.innerHTML = `<tr><td colspan="4" style="padding: 32px; text-align: center; color: #94a3b8; font-size: 12px;">Nenhum agendamento encontrado.</td></tr>`;
-                document.getElementById('infoPaginacao').innerText = "Página 1 de 1"; document.getElementById('btnAnterior').disabled = true; document.getElementById('btnProximo').disabled = true; return;
-            }
-            const totalPaginas = Math.ceil(totalRegistros / LINHAS_POR_PAGINA); if (paginaAtual > totalPaginas) paginaAtual = totalPaginas; if (paginaAtual < 1) paginaAtual = 1;
-            const indiceInicial = (paginaAtual - 1) * LINHAS_POR_PAGINA; const indiceFinal = Math.min(indiceInicial + LINHAS_POR_PAGINA, totalRegistros); const registrosDaPagina = entregasFiltradas.slice(indiceInicial, indiceFinal);
-            registrosDaPagina.forEach(e => {
-                const dataFormatada = e.data.split('-').reverse().join('/'); const tr = document.createElement('tr');
-                const indiceReal = entregas.findIndex(original => original.data === e.data && original.cpf === e.cpf && original.nome === e.nome);
-                tr.innerHTML = `<td><span class="link-data-clicavel" onclick="alterarDataEntregaPorClique(${indiceReal})">📅 ${dataFormatada}</span></td><td>${e.nome}</td><td class="td-cpf">${e.cpf}</td><td style="text-align: right;"><button type="button" class="btn-pdf" onclick="abrirDocumentoPdfReal(${indiceReal})">📄 PDF</button></td>`;
-                corpoTabela.appendChild(tr);
-            });
-            document.getElementById('infoPaginacao').innerText = `Página ${paginaAtual} de ${totalPaginas} (${totalRegistros} total)`;
-            document.getElementById('btnAnterior').disabled = (paginaAtual === 1); document.getElementById('btnProximo').disabled = (paginaAtual === totalPaginas);
-        }
-
-        function abrirDocumentoPdfReal(indiceReal) {
-            if (indiceReal === -1) return; const entrega = entregas[indiceReal]; const dataBR = entrega.data.split('-').reverse().join('/');
-            const novaAba = window.open(); novaAba.document.write(`<html lang="pt-BR"><head><title>Comprovante - ${entrega.nome}</title><style>body { font-family: 'Segoe UI', Arial, sans-serif; padding: 40px; color: #1e293b; background: #f8fafc; }.ticket { max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }.header { border-bottom: 2px solid #1e3a8a; padding-bottom: 15px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; }.title { font-size: 22px; font-weight: bold; color: #1e3a8a; }.row { margin-bottom: 15px; font-size: 14px; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px; }.label { font-weight: 700; color: #475569; text-transform: uppercase; font-size: 11px; }.val { font-size: 16px; color: #0f172a; margin-top: 4px; font-weight: 600; }.footer-btn { margin-top: 30px; display: flex; gap: 10px; }.btn { flex: 1; padding: 12px; font-weight: bold; border-radius: 8px; border: none; cursor: pointer; text-align: center; font-size: 14px; }.btn-pri { background: #1e3a8a; color: white; }.btn-sec { background: #cbd5e1; color: #334155; }@media print { .footer-btn { display: none; } body { padding: 0; background: white; } .ticket { border: none; box-shadow: none; } }</style></head><body><div class="ticket"><div class="header"><div class="title">📄 COMPROVANTE DE AGENDAMENTO</div><div style="font-weight: 800; color: #1e3a8a;">ORTOBOM</div></div><div class="row"><div class="label">Nome do Cliente</div><div class="val">${entrega.nome}</div></div><div class="row"><div class="label">CPF do Cliente</div><div class="val">${entrega.cpf}</div></div><div class="row"><div class="label">Data de Entrega Cadastrada</div><div class="val" style="color: #1e3a8a; font-size: 18px;">${dataBR}</div></div><div class="row"><div class="label">Status do Agendamento</div><div class="val" style="color: #166534;">✓ Sincronizado no Supabase Cloud</div></div><div class="footer-btn"><button class="btn btn-pri" onclick="window.print()">🖨️ Imprimir Romaneio</button><button class="btn btn-sec" onclick="window.close()">Fechar Janela</button></div></div></body></html>`); novaAba.document.close();
-        }
-
-        function mudarPagina(direcao) { paginaAtual += direcao; renderizarTabelaGlobalPaginada(); }
-        async function alterarDataEntregaPorClique(indiceReal) {
-            if (indiceReal === -1) return; const entregaSelecionada = entregas[indiceReal];
-            const novaDataInput = prompt(`Alterar data da entrega de ${entregaSelecionada.nome}:`, entregaSelecionada.data); if (!novaDataInput) return;
-            const regexData = /^\d{4}-\d{2}-\d{2}$/; if (!regexData.test(novaDataInput)) { alert("Formato inválido! Use: AAAA-MM-DD."); return; }
-            const novaDataObjeto = new Date(novaDataInput + "T00:00:00"); const checagemBloqueio = verificarSeE_FeriadoOuFimDeSemana(novaDataObjeto); if (checagemBloqueio.bloqueado) { alert(`Bloqueado: ${checagemBloqueio.motivo}.`); return; }
-            const limiteDoDia = limitesCustomizados[novaDataInput] !== undefined ? limitesCustomizados[novaDataInput] : LIMITE_PADRAO; const totalAgendadoNaNovaData = entregas.filter(e => e.data === novaDataInput).length;
-            if (totalAgendadoNaNovaData >= limiteDoDia) { alert("Vagas esgotadas para essa data."); return; }
-            
-            try {
-                const idRegistro = entregaSelecionada.id;
-                const resposta = await fetch(`${SUPABASE_URL}/rest/v1/entregas?id=eq.${idRegistro}`, {
-                    method: 'PATCH',
-                    headers: { "apikey": SUPABASE_KEY, "Authorization": `Bearer ${SUPABASE_KEY}`, "Content-Type": "application/json" },
-                    body: JSON.stringify({ data: novaDataInput })
-                });
-                if (resposta.ok) {
-                    alert("Data alterada com sucesso na nuvem!");
-                    carregarDadosOnline();
-                } else { alert("Erro ao sincronizar alteração."); }
-            } catch(e) { alert("Erro de rede."); }
-        }
-
-        function abrirPainelAdmin() { const senha = prompt("Senha ADM:"); if (senha === SENHA_ADM) { document.getElementById('modalAdmin').classList.add('ativo'); document.getElementById('adminData').value = document.getElementById('dataEntrega').value; } else if (senha !== null) { alert("Incorreta!"); } }
-        function fecharPainelAdmin() { document.getElementById('modalAdmin').classList.remove('ativo'); }
-        
-        async function salvarConfiguracaoLimite() { 
-            const data = document.getElementById('adminData').value; 
-            const limite = parseInt(document.getElementById('adminLimite').value); 
-            if (!data || isNaN(limite)) { alert("Preencha os campos."); return; } 
-            
-            try {
-                const resposta = await fetch(`${SUPABASE_URL}/rest/v1/limites_vagas`, {
-                    method: 'POST',
-                    headers: { "apikey": SUPABASE_KEY, "Authorization": `Bearer ${SUPABASE_KEY}`, "Content-Type": "application/json", "Prefer": "resolution=merge-duplicates" },
-                    body: JSON.stringify({ data, limite })
-                });
-                if (resposta.ok) {
-                    fecharPainelAdmin();
-                    carregarDadosOnline();
-                }
-            } catch(e) { alert("Falha ao salvar limite."); }
-        }
-
-        async function salvarEntrega(event) {
-            event.preventDefault(); const data = document.getElementById('dataEntrega').value; const dataObjeto = new Date(data + "T00:00:00"); const checagemBloqueio = verificarSeE_FeriadoOuFimDeSemana(dataObjeto); if (checagemBloqueio.bloqueado) { alert(`Bloqueado devido a: ${checagemBloqueio.motivo}.`); return; }
-            const limiteDoDia = limitesCustomizados[data] !== undefined ? limitesCustomizados[data] : LIMITE_PADRAO; const entregasDoDia = entregas.filter(e => e.data === data).length; if (entregasDoDia >= limiteDoDia) { alert("Vagas esgotadas!"); return; }
-            const cpf = document.getElementById('cpfCliente').value; const nome = document.getElementById('nomeCliente').value;
-            
-            try {
-                const resposta = await fetch(`${SUPABASE_URL}/rest/v1/entregas`, {
-                    method: 'POST',
-                    headers: { "apikey": SUPABASE_KEY, "Authorization": `Bearer ${SUPABASE_KEY}`, "Content-Type": "application/json" },
-                    body: JSON.stringify({ data, nome, cpf })
-                });
+                const dataFormatadaISO = dataFutura.toISOString().split('T')[0];
+                const diaNumero = dataFutura.getDate();
+                const diaSemanaTexto = diasSemana[dataFutura.getDay()];
                 
-                if (resposta.ok) {
-                    document.getElementById('cpfCliente').value = ""; document.getElementById('nomeCliente').value = ""; document.getElementById('arquivoPdf').value = "";
-                    alert("Agendamento salvo com sucesso no banco Supabase!");
-                    carregarDadosOnline();
-                } else {
-                    alert("O servidor rejeitou a gravação.");
+                const card = document.createElement("div");
+                card.className = "card-dia";
+                card.setAttribute("id", `card-${dataFormatadaISO}`);
+                card.setAttribute("data-date", dataFormatadaISO);
+                card.onclick = () => selecionarData(dataFormatadaISO);
+                
+                card.innerHTML = `
+                    <div class="dia-semana">${diaSemanaTexto}</div>
+                    <div class="dia-numero">${diaNumero}</div>
+                    <div class="dia-vagas vagas-ok" id="vagas-txt-${dataFormatadaISO}">Calculando...</div>
+                `;
+                
+                grade.appendChild(card);
+                
+                // Pré-seleciona o dia de hoje
+                if (i === 0) {
+                    selecionarData(dataFormatadaISO);
                 }
-            } catch(erro) {
-                alert("Erro de conexão com o banco de dados.");
             }
         }
 
-        carregarDadosOnline(); 
-        setInterval(carregarDadosOnline, 5000);
+        // Seleciona uma data na grade
+        function selecionarData(dataStr) {
+            dataSelecionada = dataStr;
+            document.getElementById("form-data").value = dataStr;
+            
+            document.querySelectorAll(".card-dia").forEach(card => card.classList.remove("selecionado"));
+            const cardAlvo = document.getElementById(`card-${dataStr}`);
+            if (cardAlvo) cardAlvo.classList.add("selecionado");
+        }
+
+        // ==========================================
+        // 3. OPERAÇÕES DE LEITURA (FETCH) DO SUPABASE
+        // ==========================================
+        async function carregarDadosDoSupabase() {
+            try {
+                // Busca os agendamentos registrados
+                const { data: agendamentos, error: errAgendamentos } = await supabaseClient
+                    .from('agendamentos')
+                    .select('*')
+                    .order('data_entrega', { ascending: true });
+
+                if (errAgendamentos) throw errAgendamentos;
+                listaEntregas = agendamentos || [];
+
+                // Busca as configurações customizadas de limites feitas pela ADM
+                const { data: limites, error: errLimites } = await supabaseClient
+                    .from('config_vagas')
+                    .select('*');
+
+                if (!errLimites && limites) {
+                    limitesVagasPersonalizados = {};
+                    limites.forEach(l => {
+                        limitesVagasPersonalizados[l.data_custom] = l.limite;
+                    });
+                }
+
+                atualizarInterface();
+            } catch (error) {
+                console.error("Erro ao carregar dados do Supabase:", error.message);
+            }
+        }
+
+        // Atualiza os contadores visuais e as tabelas com dados vindos da nuvem
+        function atualizarInterface() {
+            // 1. Atualizar contadores de vagas nos cards dos próximos 10 dias
+            document.querySelectorAll(".card-dia").forEach(card => {
+                const dataCard = card.getAttribute("data-date");
+                const totalAgendado = listaEntregas.filter(e => e.data_entrega === dataCard).length;
+                const limiteMaximo = limitesVagasPersonalizados[dataCard] !== undefined ? limitesVagasPersonalizados[dataCard] : LIMITE_PADRAO;
+                const vagasRestantes = Math.max(0, limiteMaximo - totalAgendado);
+                
+                const txtVagas = document.getElementById(`vagas-txt-${dataCard}`);
+                if (txtVagas) {
+                    if (vagasRestantes === 0) {
+                        txtVagas.innerText = "Esgotado";
+                        txtVagas.className = "dia-vagas vagas-esgotado";
+                    } else {
+                        txtVagas.innerText = `${vagasRestantes} vagas restantes`;
+                        txtVagas.className = "dia-vagas vagas-ok";
+                    }
+                }
+            });
+
+            // 2. Renderizar linhas da tabela
+            renderizarTabela(listaEntregas);
+        }
+
+        function renderizarTabela(dados) {
+            const corpo = document.getElementById("corpo-tabela");
+            corpo.innerHTML = "";
+            
+            if (dados.length === 0) {
+                corpo.innerHTML = `<tr><td colspan="3" style="text-align:center; color:#64748b;">Nenhum agendamento encontrado</td></tr>`;
+                return;
+            }
+
+            dados.forEach(item => {
+                const partes = item.data_entrega.split("-");
+                const dataExibicao = `${partes[2]}/${partes[1]}/${partes[0]}`;
+
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                    <td><span class="link-data-clicavel" onclick="selecionarData('${item.data_entrega}')">${dataExibicao}</span></td>
+                    <td><strong>${item.nome_cliente}</strong></td>
+                    <td>${item.cpf_cliente}</td>
+                `;
+                corpo.appendChild(tr);
+            });
+        }
+
+        // Filtro em tempo real na listagem
+        function filtrarTabela() {
+            const termo = document.getElementById("busca-tabela").value.toLowerCase();
+            const filtrados = listaEntregas.filter(e => 
+                e.nome_cliente.toLowerCase().includes(termo) || 
+                e.cpf_cliente.includes(termo)
+            );
+            renderizarTabela(filtrados);
+        }
+
+        // ==========================================
+        // 4. OPERAÇÕES DE GRAVAÇÃO (INSERT/UPSERT)
+        // ==========================================
+        async function salvarAgendamento(event) {
+            event.preventDefault();
+
+            const cpf = document.getElementById("form-cpf").value;
+            const nome = document.getElementById("form-nome").value;
+
+            // Validação de segurança local de vagas antes do envio
+            const totalAgendado = listaEntregas.filter(e => e.data_entrega === dataSelecionada).length;
+            const limiteMaximo = limitesVagasPersonalizados[dataSelecionada] !== undefined ? limitesVagasPersonalizados[dataSelecionada] : LIMITE_PADRAO;
+            
+            if (totalAgendado >= limiteMaximo) {
+                alert("Desculpe! As vagas para este dia foram esgotadas no momento.");
+                return;
+            }
+
+            try {
+                const { error } = await supabaseClient
+                    .from('agendamentos')
+                    .insert([{ 
+                        data_entrega: dataSelecionada, 
+                        cpf_cliente: cpf, 
+                        nome_cliente: nome 
+                    }]);
+
+                if (error) throw error;
+
+                alert("Agendamento saved successfully!");
+                document.getElementById("form-cpf").value = "";
+                document.getElementById("form-nome").value = "";
+                
+                // Recarrega os dados em tempo real da nuvem
+                carregarDadosDoSupabase();
+            } catch (error) {
+                console.error("Erro ao salvar agendamento:", error.message);
+                alert("Erro ao salvar no Supabase: " + error.message);
+            }
+        }
+
+        // Atualização dos limites de vaga por dia (Painel Administrativo)
+        async function atualizarLimiteData() {
+            const dataDefinida = document.getElementById("admin-data").value;
+            const novoLimite = parseInt(document.getElementById("admin-limite").value);
+
+            if (!dataDefinida || isNaN(novoLimite)) {
+                alert("Por favor, preencha todos os campos do painel ADM.");
+                return;
+            }
+
+            try {
+                const { error } = await supabaseClient
+                    .from('config_vagas')
+                    .upsert({ data_custom: dataDefinida, limite: novoLimite }, { onConflict: 'data_custom' });
+
+                if (error) throw error;
+
+                alert(`Limite alterado para ${novoLimite} vagas!`);
+                fecharModalAdmin();
+                carregarDadosDoSupabase();
+            } catch (error) {
+                console.error("Erro ao definir limite ADM:", error.message);
+                alert("Erro ao salvar limite: " + error.message);
+            }
+        }
+
+        // ==========================================
+        // 5. CONTROLES DO MODAL ADM
+        // ==========================================
+        function abrirModalAdmin() {
+            document.getElementById("modal-admin").style.display = "flex";
+            document.getElementById("admin-data").value = dataSelecionada;
+        }
+        function fecharModalAdmin() {
+            document.getElementById("modal-admin").style.display = "none";
+        }
     </script>
 </body>
 </html>
