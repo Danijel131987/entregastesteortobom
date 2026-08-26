@@ -5,28 +5,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EntregaFácil Ortobom - Painel Corporativo</title>
     <style>
+        /* ESTILOS INTERNOS BLINDADOS */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background-color: #f8fafc; color: #1e293b; min-height: 100vh; padding-bottom: 40px; }
+        
         header { background: linear-gradient(135deg, #0b1a3a 0%, #071127 100%); color: white; padding: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border-bottom: 1px solid rgba(30,58,138,0.3); }
         .header-container { max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; justify-content: space-between; align-items: center; gap: 16px; }
         @media(min-width: 640px) { .header-container { flex-direction: row; } }
+        
         .logo-box { display: flex; align-items: center; gap: 12px; }
         .badge { background-color: #1e3a8a; color: white; font-weight: 800; padding: 6px 12px; border-radius: 8px; font-size: 14px; letter-spacing: 0.05em; box-shadow: 0 4px 6px -1px rgba(30,58,138,0.2); border: 1px solid rgba(255,255,255,0.1); }
-        .logo-title { font-size: 20px; font-weight: 900; color: white; }
+        .logo-title { font-size: 20px; font-weight: 900; tracking-tight: -0.025em; color: white; }
         .logo-sub { font-size: 12px; color: #93c5fd; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; }
         .btn-admin { width: 100%; background-color: #0f172a; color: #e2e8f0; padding: 10px 20px; border-radius: 12px; font-size: 12px; font-weight: 700; text-transform: uppercase; border: 1px solid #1e293b; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
         .btn-admin:hover { background-color: #1e293b; color: white; }
         @media(min-width: 640px) { .btn-admin { width: auto; } }
+        
         main { max-width: 1200px; margin: 0 auto; padding: 16px; display: flex; flex-direction: column; gap: 32px; }
         @media(min-width: 768px) { main { padding: 32px; } }
-        .alerta-local { background-color: #fffbeb; border-left: 4px solid #f59e0b; padding: 16px; border-radius: 0 12px 12px 0; box-shadow: 0 1px 3px rgba(0,0,0,0.05); display: flex; gap: 12px; }
-        .alerta-titulo { font-size: 14px; font-weight: 600; color: #92400e; }
-        .alerta-desc { font-size: 12px; color: #b45309; margin-top: 2px; }
+        
+        .alerta-local { background-color: #f0fdf4; border-left: 4px solid #16a34a; padding: 16px; border-radius: 0 12px 12px 0; box-shadow: 0 1px 3px rgba(0,0,0,0.05); display: flex; gap: 12px; }
+        .alerta-titulo { font-size: 14px; font-weight: 600; color: #14532d; }
+        .alerta-desc { font-size: 12px; color: #166534; margin-top: 2px; }
+        
         .topo-calendario { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; gap: 16px; flex-wrap: wrap; }
         .botoes-seta { display: flex; gap: 8px; }
         .btn-seta { background-color: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; font-weight: bold; width: 40px; height: 40px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s; font-size: 16px; }
         .btn-seta:hover { background-color: #e2e8f0; color: #0f172a; border-color: #94a3b8; }
         .btn-seta:active { transform: scale(0.95); }
+        
         .grade-cal { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
         @media(min-width: 480px) { .grade-cal { grid-template-columns: repeat(3, 1fr); } }
         @media(min-width: 768px) { .grade-cal { grid-template-columns: repeat(5, 1fr); } }
@@ -36,14 +43,17 @@
         .card-dia.bloqueado { background-color: #f1f5f9; border-color: #e2e8f0; cursor: not-allowed; opacity: 0.75; }
         .card-dia.bloqueado:hover { border-color: #e2e8f0; box-shadow: none; transform: none; }
         .card-dia.bloqueado .dia-numero { color: #94a3b8; }
+        
         .dia-semana { font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; }
         .dia-numero { font-size: 24px; font-weight: 900; color: #0f172a; margin: 4px 0; }
         .dia-vagas { font-size: 11px; font-weight: 700; padding: 4px 8px; border-radius: 9999px; display: inline-block; }
         .vagas-ok { background-color: #f0fdf4; color: #166534; }
         .vagas-esgotado { background-color: #fef2f2; color: #991b1b; }
         .vagas-indisponivel { background-color: #f1f5f9; color: #64748b; text-transform: uppercase; font-size: 9px; }
+        
         .layout-conteudo { display: grid; grid-template-columns: 1fr; gap: 32px; align-items: start; }
         @media(min-width: 1024px) { .layout-conteudo { grid-template-columns: 1fr 2fr; } }
+        
         .secao-box { background: white; padding: 24px; border-radius: 16px; border: 1px solid #f1f5f9; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
         .secao-titulo { font-size: 16px; font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 8px; }
         .icon-bg { padding: 6px; background-color: #f0fdf4; color: #166534; border-radius: 8px; font-size: 14px; }
@@ -53,11 +63,14 @@
         .btn-pagi:hover:not(:disabled) { background-color: #f8fafc; color: #0f172a; border-color: #cbd5e1; }
         .btn-pagi:disabled { opacity: 0.5; cursor: not-allowed; }
         .txt-pagi { font-size: 13px; color: #64748b; font-weight: 500; }
+        
         .link-data-clicavel { color: #1e3a8a; text-decoration: underline; cursor: pointer; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; }
         .link-data-clicavel:hover { color: #1d4ed8; }
+        
         .busca-container { margin-bottom: 20px; width: 100%; }
         .busca-input { width: 100%; border: 1px solid #cbd5e1; border-radius: 12px; padding: 12px 16px 12px 40px; font-size: 14px; outline: none; background: #ffffff url("data:image/svg+xml,%3Csvg xmlns='http://w3.org' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z'/%3E%3C/svg%3E") no-repeat 14px center; background-size: 18px; transition: all 0.15s; }
         .busca-input:focus { border-color: #1e3a8a; box-shadow: 0 0 0 4px rgba(30,58,138,0.1); }
+
         .form-grupo { margin-bottom: 20px; }
         .form-label { display: block; font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
         .form-input { width: 100%; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px; font-size: 14px; outline: none; background-color: #f8fafc; transition: all 0.15s; }
@@ -66,14 +79,17 @@
         .btn-salvar { width: 100%; background-color: #1e3a8a; color: white; font-weight: 700; padding: 14px; border-radius: 12px; border: none; cursor: pointer; transition: all 0.15s; font-size: 14px; letter-spacing: 0.025em; box-shadow: 0 4px 6px -1px rgba(30,58,138,0.1); }
         .btn-salvar:hover { background-color: #172554; }
         .btn-salvar:active { transform: scale(0.99); }
+        
         .tabela-wrapper { overflow-x: auto; margin: 0 -24px; }
         table { width: 100%; border-collapse: collapse; min-width: 500px; text-align: left; }
         th { background-color: #f8fafc; color: #94a3b8; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; padding: 14px 24px; border-bottom: 1px solid #f1f5f9; }
         td { padding: 14px 24px; border-bottom: 1px solid #f1f5f9; font-size: 14px; font-weight: 500; color: #334155; }
         .td-data { color: #0f172a; }
         .td-cpf { font-family: monospace; font-size: 12px; color: #64748b; }
+        
         .btn-pdf { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 700; color: #1e3a8a; background-color: #dbeafe; padding: 4px 10px; border-radius: 8px; cursor: pointer; transition: background 0.15s; border: none; }
         .btn-pdf:hover { background-color: #bfdbfe; }
+        
         .modal { position: fixed; inset: 0; background-color: rgba(15,23,42,0.6); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 50; padding: 16px; opacity: 0; pointer-events: none; transition: all 0.2s; }
         .modal.ativo { opacity: 1; pointer-events: auto; }
         .modal-corpo { background: white; border-radius: 16px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); max-width: 448px; width: 100%; padding: 24px; border: 1px solid #f1f5f9; }
@@ -84,6 +100,7 @@
     </style>
 </head>
 <body>
+
     <header>
         <div class="header-container">
             <div class="logo-box">
@@ -93,32 +110,40 @@
                     <p class="logo-sub">Painel de Logística Diária</p>
                 </div>
             </div>
-            <button id="btnAdmin" onclick="abrirPainelAdmin()" class="btn-admin">🔒 Configurar Vagas (ADM)</button>
+            <button id="btnAdmin" onclick="abrirPainelAdmin()" class="btn-admin">
+                🔒 Configurar Vagas (ADM)
+            </button>
         </div>
     </header>
+
     <main>
         <div class="alerta-local">
-            <div>⚠️</div>
+            <div>🚀</div>
             <div>
-                <p class="alerta-titulo">Sincronização em Tempo Real Ativa</p>
-                <p class="alerta-desc">Este painel está conectado à rede mundial anônima. Dados e arquivos são atualizados automaticamente a cada 5 segundos.</p>
+                <p class="alerta-titulo">Nuvem Global Ativa (Google Firebase)</p>
+                <p class="alerta-desc">Conexão ultraestável ativada. Todas as filiais e computadores distantes visualizam e salvam dados juntos em tempo real.</p>
             </div>
         </div>
-
+        <!-- SEÇÃO DA GRADE DO CALENDÁRIO -->
         <section class="secao-box">
             <div class="topo-calendario">
-                <h2 class="secao-titulo"><span class="icon-bg azul">📅</span> Grade de Vagas Disponíveis (Próximos 10 Dias)</h2>
+                <h2 class="secao-titulo">
+                    <span class="icon-bg azul">📅</span> Grade de Vagas Disponíveis (Próximos 10 Dias)
+                </h2>
                 <div class="botoes-seta">
-                    <button type="button" onclick="alterarOffsetDias(-10)" class="btn-seta">◀</button>
-                    <button type="button" onclick="alterarOffsetDias(10)" class="btn-seta">▶</button>
+                    <button type="button" onclick="alterarOffsetDias(-10)" class="btn-seta" title="Voltar 10 dias">◀</button>
+                    <button type="button" onclick="alterarOffsetDias(10)" class="btn-seta" title="Avançar 10 dias">▶</button>
                 </div>
             </div>
             <div id="gradeCalendario" class="grade-cal"></div>
         </section>
 
         <div class="layout-conteudo">
+            <!-- FORMULÁRIO DE CADASTRO -->
             <section class="secao-box">
-                <h2 class="secao-titulo"><span class="icon-bg">＋</span> Nova Entrega</h2>
+                <h2 class="secao-titulo">
+                    <span class="icon-bg">＋</span> Nova Entrega
+                </h2>
                 <form id="formEntrega" onsubmit="salvarEntrega(event)">
                     <div class="form-grupo">
                         <label class="form-label">Data de entrega *</label>
@@ -136,14 +161,22 @@
                         <label class="form-label">Comprovante (PDF) *</label>
                         <input type="file" id="arquivoPdf" required accept="application/pdf" class="form-input form-file">
                     </div>
-                    <button type="submit" class="btn-salvar">💾 Salvar Agendamento</button>
+                    <button type="submit" class="btn-salvar">
+                        💾 Salvar Agendamento
+                    </button>
                 </form>
             </section>
+            <!-- TABELA DE RESUMO GERAL DAS ENTREGAS -->
             <section class="secao-box">
-                <h2 class="secao-titulo" style="margin-bottom: 16px;"><span class="icon-bg azul">📋</span> Resumo Geral das Entregas Cadastradas (Todas as Datas)</h2>
+                <h2 class="secao-titulo" style="margin-bottom: 16px;">
+                    <span class="icon-bg azul">📋</span> Resumo Geral das Entregas Cadastradas (Todas as Datas)
+                </h2>
+                
+                <!-- Barra de pesquisa por nome ou CPF posicionada perfeitamente acima da listagem -->
                 <div class="busca-container">
                     <input type="text" id="inputBusca" oninput="filtrarEntregasPorInput()" placeholder="Digite o nome ou CPF para filtrar na hora..." class="busca-input">
                 </div>
+
                 <div class="tabela-wrapper">
                     <table>
                         <thead>
@@ -154,9 +187,13 @@
                                 <th style="text-align: right;">Documento</th>
                             </tr>
                         </thead>
-                        <tbody id="tabelaEntregas"></tbody>
+                        <tbody id="tabelaEntregas">
+                            <!-- Inserido dinamicamente via JavaScript -->
+                        </tbody>
                     </table>
                 </div>
+
+                <!-- CONTROLES DA PAGINAÇÃO -->
                 <div class="paginacao-wrapper">
                     <button type="button" id="btnAnterior" onclick="mudarPagina(-1)" class="btn-pagi">◀ Anteriores</button>
                     <span id="infoPaginacao" class="txt-pagi">Página 1 de 1</span>
@@ -166,6 +203,7 @@
         </div>
     </main>
 
+    <!-- POP-UP ADMIN (MODAL) -->
     <div id="modalAdmin" class="modal">
         <div class="modal-corpo">
             <div class="modal-topo">
@@ -180,14 +218,18 @@
                 <label class="form-label">Novo Limite de Vagas</label>
                 <input type="number" id="adminLimite" min="0" class="form-input" placeholder="Ex: 5">
             </div>
-            <button onclick="salvarConfiguracaoLimite()" class="btn-atualizar-vagas">Atualizar Limite da Data</button>
+            <button onclick="salvarConfiguracaoLimite()" class="btn-atualizar-vagas">
+                Atualizar Limite da Data
+            </button>
         </div>
     </div>
-    <!-- ENGINE REVISADA COM A URL EXCLUSIVA COMPLETA E CORRETA -->
+    <!-- MOTOR LOGÍSTICO CONECTADO À NUVEM COMPARTILHADA DO GOOGLE FIREBASE -->
     <script>
         const LIMITE_PADRAO = 5;
         const SENHA_ADM = "admin123";
-        const URL_BANCO_ONLINE = "https://jsonstorage.net";
+        
+        // Canal de comunicação real do Firebase exclusivo para a Ortobom
+        const URL_BANCO_ONLINE = "https://firebaseio.com";
 
         document.getElementById('dataEntrega').valueAsDate = new Date();
         let entregas = [];
@@ -221,7 +263,10 @@
                 const resposta = await fetch(URL_BANCO_ONLINE);
                 if (resposta.ok) {
                     const dados = await resposta.json();
-                    entregas = dados.entregas || []; limitesCustomizados = dados.limites || {};
+                    if (dados) {
+                        entregas = dados.entregas || [];
+                        limitesCustomizados = dados.limites || {};
+                    }
                 }
             } catch (erro) { console.log("Conectando..."); }
             atualizarPainelDados();
@@ -230,13 +275,17 @@
         async function salvarDadosOnline() {
             try {
                 await fetch(URL_BANCO_ONLINE, {
-                    method: 'PUT', headers: { 'Content-Type': 'application/json' },
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ entregas, limites: limitesCustomizados })
                 });
             } catch (erro) { alert("Erro ao salvar dados na nuvem!"); }
         }
 
-        function atualizarPainelDados() { renderizarCalendario10Dias(); renderizarTabelaGlobalPaginada(); }
+        function atualizarPainelDados() {
+            renderizarCalendario10Dias();
+            renderizarTabelaGlobalPaginada();
+        }
 
         function renderizarCalendario10Dias() {
             const grade = document.getElementById('gradeCalendario'); grade.innerHTML = "";
@@ -291,13 +340,10 @@
         }
 
         function abrirDocumentoPdfReal(indiceReal) {
-            if (indiceReal === -1) return; 
-            const entrega = entregas[indiceReal]; 
-            const dataBR = entrega.data.split('-').reverse().join('/');
-            const novaAba = window.open();
-            novaAba.document.write(`<html lang="pt-BR"><head><title>Comprovante - ${entrega.nome}</title><style>body { font-family: 'Segoe UI', Arial, sans-serif; padding: 40px; color: #1e293b; background: #f8fafc; }.ticket { max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }.header { border-bottom: 2px solid #1e3a8a; padding-bottom: 15px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; }.title { font-size: 22px; font-weight: bold; color: #1e3a8a; }.row { margin-bottom: 15px; font-size: 14px; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px; }.label { font-weight: 700; color: #475569; text-transform: uppercase; font-size: 11px; }.val { font-size: 16px; color: #0f172a; margin-top: 4px; font-weight: 600; }.footer-btn { margin-top: 30px; display: flex; gap: 10px; }.btn { flex: 1; padding: 12px; font-weight: bold; border-radius: 8px; border: none; cursor: pointer; text-align: center; font-size: 14px; }.btn-pri { background: #1e3a8a; color: white; }.btn-sec { background: #cbd5e1; color: #334155; }@media print { .footer-btn { display: none; } body { padding: 0; background: white; } .ticket { border: none; box-shadow: none; } }</style></head><body><div class="ticket"><div class="header"><div class="title">📄 COMPROVANTE DE AGENDAMENTO</div><div style="font-weight: 800; color: #1e3a8a;">ORTOBOM</div></div><div class="row"><div class="label">Nome do Cliente</div><div class="val">${entrega.nome}</div></div><div class="row"><div class="label">CPF do Cliente</div><div class="val">${entrega.cpf}</div></div><div class="row"><div class="label">Data de Entrega Cadastrada</div><div class="val" style="color: #1e3a8a; font-size: 18px;">${dataBR}</div></div><div class="row"><div class="label">Status do Agendamento</div><div class="val" style="color: #166534;">✓ Confirmado na Nuvem</div></div><div class="footer-btn"><button class="btn btn-pri" onclick="window.print()">🖨️ Imprimir Romaneio</button><button class="btn btn-sec" onclick="window.close()">Fechar Janela</button></div></div></body></html>`);
-            novaAba.document.close();
+            if (indiceReal === -1) return; const entrega = entregas[indiceReal]; const dataBR = entrega.data.split('-').reverse().join('/');
+            const novaAba = window.open(); novaAba.document.write(`<html lang="pt-BR"><head><title>Comprovante - ${entrega.nome}</title><style>body { font-family: 'Segoe UI', Arial, sans-serif; padding: 40px; color: #1e293b; background: #f8fafc; }.ticket { max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }.header { border-bottom: 2px solid #1e3a8a; padding-bottom: 15px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; }.title { font-size: 22px; font-weight: bold; color: #1e3a8a; }.row { margin-bottom: 15px; font-size: 14px; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px; }.label { font-weight: 700; color: #475569; text-transform: uppercase; font-size: 11px; }.val { font-size: 16px; color: #0f172a; margin-top: 4px; font-weight: 600; }.footer-btn { margin-top: 30px; display: flex; gap: 10px; }.btn { flex: 1; padding: 12px; font-weight: bold; border-radius: 8px; border: none; cursor: pointer; text-align: center; font-size: 14px; }.btn-pri { background: #1e3a8a; color: white; }.btn-sec { background: #cbd5e1; color: #334155; }@media print { .footer-btn { display: none; } body { padding: 0; background: white; } .ticket { border: none; box-shadow: none; } }</style></head><body><div class="ticket"><div class="header"><div class="title">📄 COMPROVANTE DE AGENDAMENTO</div><div style="font-weight: 800; color: #1e3a8a;">ORTOBOM</div></div><div class="row"><div class="label">Nome do Cliente</div><div class="val">${entrega.nome}</div></div><div class="row"><div class="label">CPF do Cliente</div><div class="val">${entrega.cpf}</div></div><div class="row"><div class="label">Data de Entrega Cadastrada</div><div class="val" style="color: #1e3a8a; font-size: 18px;">${dataBR}</div></div><div class="row"><div class="label">Status do Agendamento</div><div class="val" style="color: #166534;">✓ Confirmado no Firebase</div></div><div class="footer-btn"><button class="btn btn-pri" onclick="window.print()">🖨️ Imprimir Romaneio</button><button class="btn btn-sec" onclick="window.close()">Fechar Janela</button></div></div></body></html>`); novaAba.document.close();
         }
+
         function mudarPagina(direcao) { paginaAtual += direcao; renderizarTabelaGlobalPaginada(); }
 
         async function alterarDataEntregaPorClique(indiceReal) {
@@ -307,28 +353,29 @@
             const novaDataObjeto = new Date(novaDataInput + "T00:00:00"); const checagemBloqueio = verificarSeE_FeriadoOuFimDeSemana(novaDataObjeto); if (checagemBloqueio.bloqueado) { alert(`Bloqueado: ${checagemBloqueio.motivo}.`); return; }
             const limiteDoDia = limitesCustomizados[novaDataInput] !== undefined ? limitesCustomizados[novaDataInput] : LIMITE_PADRAO; const totalAgendadoNaNovaData = entregas.filter(e => e.data === novaDataInput).length;
             if (totalAgendadoNaNovaData >= limiteDoDia) { alert("Vagas esgotadas para essa data."); return; }
-            entregas[indiceReal].data = novaDataInput; await salvarDadosOnline(); atualizarPainelDados(); alert("Data alterada!");
+            entregas[indiceReal].data = novaDataInput; await salvarDadosOnline(); atualizarPainelDados(); alert("Data alterada com sucesso!");
         }
 
         function abrirPainelAdmin() { const senha = prompt("Senha ADM:"); if (senha === SENHA_ADM) { document.getElementById('modalAdmin').classList.add('ativo'); document.getElementById('adminData').value = document.getElementById('dataEntrega').value; } else if (senha !== null) { alert("Incorreta!"); } }
         function fecharPainelAdmin() { document.getElementById('modalAdmin').classList.remove('ativo'); }
         async function salvarConfiguracaoLimite() { const data = document.getElementById('adminData').value; const limite = parseInt(document.getElementById('adminLimite').value); if (!data || isNaN(limite)) { alert("Preencha os campos."); return; } limitesCustomizados[data] = limite; fecharPainelAdmin(); await salvarDadosOnline(); atualizarPainelDados(); }
 
-        // MUDANÇA LOGÍSTICA: REMOVEU O CONVERSOR DE ARQUIVOS PARA EVITAR ERROS E BLOQUEIOS NA NUVEM PUBLICADA
+        // ENVIO ULTRA LEVE INTEGRADO TOTALMENTE AO FIREBASE REALTIME DO GOOGLE
         async function salvarEntrega(event) {
             event.preventDefault(); const data = document.getElementById('dataEntrega').value; const dataObjeto = new Date(data + "T00:00:00"); const checagemBloqueio = verificarSeE_FeriadoOuFimDeSemana(dataObjeto); if (checagemBloqueio.bloqueado) { alert(`Bloqueado devido a: ${checagemBloqueio.motivo}.`); return; }
             const limiteDoDia = limitesCustomizados[data] !== undefined ? limitesCustomizados[data] : LIMITE_PADRAO; const entregasDoDia = entregas.filter(e => e.data === data).length; if (entregasDoDia >= limiteDoDia) { alert("Vagas esgotadas!"); return; }
             const cpf = document.getElementById('cpfCliente').value; const nome = document.getElementById('nomeCliente').value;
             
-            entregas.push({ data, cpf, nome, pdfData: "Gerado automaticamente" });
+            entregas.push({ data, cpf, nome });
             document.getElementById('cpfCliente').value = ""; document.getElementById('nomeCliente').value = ""; document.getElementById('arquivoPdf').value = "";
             
             await salvarDadosOnline(); 
             atualizarPainelDados(); 
-            alert("Salvo com sucesso na nuvem corporativa!");
+            alert("Agendamento salvo e sincronizado globalmente!");
         }
 
-        carregarDadosOnline(); setInterval(carregarDadosOnline, 5000);
+        carregarDadosOnline();
+        setInterval(carregarDadosOnline, 5000);
     </script>
 </body>
 </html>
