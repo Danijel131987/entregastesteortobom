@@ -24,9 +24,9 @@
         main { max-width: 1200px; margin: 0 auto; padding: 16px; display: flex; flex-direction: column; gap: 32px; }
         @media(min-width: 768px) { main { padding: 32px; } }
         
-        .alerta-local { background-color: #f0fdf4; border-left: 4px solid #16a34a; padding: 16px; border-radius: 0 12px 12px 0; box-shadow: 0 1px 3px rgba(0,0,0,0.05); display: flex; gap: 12px; }
-        .alerta-titulo { font-size: 14px; font-weight: 600; color: #14532d; }
-        .alerta-desc { font-size: 12px; color: #166534; margin-top: 2px; }
+        .alerta-local { background-color: #fffbeb; border-left: 4px solid #f59e0b; padding: 16px; border-radius: 0 12px 12px 0; box-shadow: 0 1px 3px rgba(0,0,0,0.05); display: flex; gap: 12px; }
+        .alerta-titulo { font-size: 14px; font-weight: 600; color: #92400e; }
+        .alerta-desc { font-size: 12px; color: #b45309; margin-top: 2px; }
         
         .topo-calendario { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; gap: 16px; flex-wrap: wrap; }
         .botoes-seta { display: flex; gap: 8px; }
@@ -120,8 +120,8 @@
         <div class="alerta-local">
             <div>🚀</div>
             <div>
-                <p class="alerta-titulo">Nuvem Global Ativa (Google Firebase)</p>
-                <p class="alerta-desc">Conexão ultraestável ativada. Todas as filiais e computadores distantes visualizam e salvam dados juntos em tempo real.</p>
+                <p class="alerta-titulo">Nuvem Global Ativa (Sincronização Total)</p>
+                <p class="alerta-desc">Conexão estável sem travas ativada. Todas as filiais e computadores distantes salvam e atualizam os dados juntos em tempo real.</p>
             </div>
         </div>
         <!-- SEÇÃO DA GRADE DO CALENDÁRIO -->
@@ -223,13 +223,11 @@
             </button>
         </div>
     </div>
-    <!-- MOTOR LOGÍSTICO CONECTADO À NUVEM COMPARTILHADA DO GOOGLE FIREBASE -->
+    <!-- ENGINE REVISADA E COMPATÍVEL COM MÚLTIPLOS COMPUTADORES -->
     <script>
         const LIMITE_PADRAO = 5;
         const SENHA_ADM = "admin123";
-        
-        // Canal de comunicação real do Firebase exclusivo para a Ortobom
-        const URL_BANCO_ONLINE = "https://firebaseio.com";
+        const URL_BANCO_ONLINE = "https://jsonstorage.net";
 
         document.getElementById('dataEntrega').valueAsDate = new Date();
         let entregas = [];
@@ -339,9 +337,10 @@
             document.getElementById('btnAnterior').disabled = (paginaAtual === 1); document.getElementById('btnProximo').disabled = (paginaAtual === totalPaginas);
         }
 
+        // EMITE O ROMANEIO DA ORTOBOM EM TELA COM ACESSO A QUALQUER IMPRESSORA
         function abrirDocumentoPdfReal(indiceReal) {
             if (indiceReal === -1) return; const entrega = entregas[indiceReal]; const dataBR = entrega.data.split('-').reverse().join('/');
-            const novaAba = window.open(); novaAba.document.write(`<html lang="pt-BR"><head><title>Comprovante - ${entrega.nome}</title><style>body { font-family: 'Segoe UI', Arial, sans-serif; padding: 40px; color: #1e293b; background: #f8fafc; }.ticket { max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }.header { border-bottom: 2px solid #1e3a8a; padding-bottom: 15px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; }.title { font-size: 22px; font-weight: bold; color: #1e3a8a; }.row { margin-bottom: 15px; font-size: 14px; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px; }.label { font-weight: 700; color: #475569; text-transform: uppercase; font-size: 11px; }.val { font-size: 16px; color: #0f172a; margin-top: 4px; font-weight: 600; }.footer-btn { margin-top: 30px; display: flex; gap: 10px; }.btn { flex: 1; padding: 12px; font-weight: bold; border-radius: 8px; border: none; cursor: pointer; text-align: center; font-size: 14px; }.btn-pri { background: #1e3a8a; color: white; }.btn-sec { background: #cbd5e1; color: #334155; }@media print { .footer-btn { display: none; } body { padding: 0; background: white; } .ticket { border: none; box-shadow: none; } }</style></head><body><div class="ticket"><div class="header"><div class="title">📄 COMPROVANTE DE AGENDAMENTO</div><div style="font-weight: 800; color: #1e3a8a;">ORTOBOM</div></div><div class="row"><div class="label">Nome do Cliente</div><div class="val">${entrega.nome}</div></div><div class="row"><div class="label">CPF do Cliente</div><div class="val">${entrega.cpf}</div></div><div class="row"><div class="label">Data de Entrega Cadastrada</div><div class="val" style="color: #1e3a8a; font-size: 18px;">${dataBR}</div></div><div class="row"><div class="label">Status do Agendamento</div><div class="val" style="color: #166534;">✓ Confirmado no Firebase</div></div><div class="footer-btn"><button class="btn btn-pri" onclick="window.print()">🖨️ Imprimir Romaneio</button><button class="btn btn-sec" onclick="window.close()">Fechar Janela</button></div></div></body></html>`); novaAba.document.close();
+            const novaAba = window.open(); novaAba.document.write(`<html lang="pt-BR"><head><title>Comprovante - ${entrega.nome}</title><style>body { font-family: 'Segoe UI', Arial, sans-serif; padding: 40px; color: #1e293b; background: #f8fafc; }.ticket { max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }.header { border-bottom: 2px solid #1e3a8a; padding-bottom: 15px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; }.title { font-size: 22px; font-weight: bold; color: #1e3a8a; }.row { margin-bottom: 15px; font-size: 14px; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px; }.label { font-weight: 700; color: #475569; text-transform: uppercase; font-size: 11px; }.val { font-size: 16px; color: #0f172a; margin-top: 4px; font-weight: 600; }.footer-btn { margin-top: 30px; display: flex; gap: 10px; }.btn { flex: 1; padding: 12px; font-weight: bold; border-radius: 8px; border: none; cursor: pointer; text-align: center; font-size: 14px; }.btn-pri { background: #1e3a8a; color: white; }.btn-sec { background: #cbd5e1; color: #334155; }@media print { .footer-btn { display: none; } body { padding: 0; background: white; } .ticket { border: none; box-shadow: none; } }</style></head><body><div class="ticket"><div class="header"><div class="title">📄 COMPROVANTE DE AGENDAMENTO</div><div style="font-weight: 800; color: #1e3a8a;">ORTOBOM</div></div><div class="row"><div class="label">Nome do Cliente</div><div class="val">${entrega.nome}</div></div><div class="row"><div class="label">CPF do Cliente</div><div class="val">${entrega.cpf}</div></div><div class="row"><div class="label">Data de Entrega Cadastrada</div><div class="val" style="color: #1e3a8a; font-size: 18px;">${dataBR}</div></div><div class="row"><div class="label">Status do Agendamento</div><div class="val" style="color: #166534;">✓ Confirmado no Banco de Dados</div></div><div class="footer-btn"><button class="btn btn-pri" onclick="window.print()">🖨️ Imprimir Romaneio</button><button class="btn btn-sec" onclick="window.close()">Fechar Janela</button></div></div></body></html>`); novaAba.document.close();
         }
 
         function mudarPagina(direcao) { paginaAtual += direcao; renderizarTabelaGlobalPaginada(); }
@@ -360,7 +359,7 @@
         function fecharPainelAdmin() { document.getElementById('modalAdmin').classList.remove('ativo'); }
         async function salvarConfiguracaoLimite() { const data = document.getElementById('adminData').value; const limite = parseInt(document.getElementById('adminLimite').value); if (!data || isNaN(limite)) { alert("Preencha os campos."); return; } limitesCustomizados[data] = limite; fecharPainelAdmin(); await salvarDadosOnline(); atualizarPainelDados(); }
 
-        // ENVIO ULTRA LEVE INTEGRADO TOTALMENTE AO FIREBASE REALTIME DO GOOGLE
+        // SALVAMENTO OTIMIZADO PARA MULTI-COMPUTADORES LIVRE DE BLOQUEIOS E TRAVAS DE DISPOSITIVO
         async function salvarEntrega(event) {
             event.preventDefault(); const data = document.getElementById('dataEntrega').value; const dataObjeto = new Date(data + "T00:00:00"); const checagemBloqueio = verificarSeE_FeriadoOuFimDeSemana(dataObjeto); if (checagemBloqueio.bloqueado) { alert(`Bloqueado devido a: ${checagemBloqueio.motivo}.`); return; }
             const limiteDoDia = limitesCustomizados[data] !== undefined ? limitesCustomizados[data] : LIMITE_PADRAO; const entregasDoDia = entregas.filter(e => e.data === data).length; if (entregasDoDia >= limiteDoDia) { alert("Vagas esgotadas!"); return; }
@@ -374,8 +373,7 @@
             alert("Agendamento salvo e sincronizado globalmente!");
         }
 
-        carregarDadosOnline();
-        setInterval(carregarDadosOnline, 5000);
+        carregarDadosOnline(); setInterval(carregarDadosOnline, 5000);
     </script>
 </body>
 </html>
